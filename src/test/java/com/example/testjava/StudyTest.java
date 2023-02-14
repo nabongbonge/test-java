@@ -1,16 +1,19 @@
 package com.example.testjava;
 
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.condition.*;
 
 import java.time.Duration;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static org.junit.jupiter.api.Assumptions.assumingThat;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class StudyTest {
-
-  @Test
   @DisplayName("assertAll 테스트")
+  @Test
   void create_new_study() {
     Study study = new Study(0);
     assertNotNull(study);
@@ -30,6 +33,7 @@ class StudyTest {
 
 
   }
+
 
   @DisplayName("assertThrows 테스트")
   @Test
@@ -62,6 +66,55 @@ class StudyTest {
       new Study(10);
       Thread.sleep(1000);
     });
+  }
+
+  @DisplayName("assume 테스트")
+  @Test
+  void create_new_study4() {
+    String env = System.getenv("TEST_ENV");
+    System.out.println("env = " + env);
+    assumeTrue("LOCAL".equals(env)); // true인 경우만 다음 코드를 실행한다.
+
+    assumingThat("LOCAL".equalsIgnoreCase(env), () -> {
+      System.out.println(":::::");
+      Study actual = new Study(100);
+      assertThat(actual.getLimit()).isGreaterThan(0);
+    });
+  }
+
+  @DisplayName("@EnabledOnOs 테스트")
+  @Test
+  @EnabledOnOs(OS.MAC)
+  void create_new_study5() {
+    System.out.println("@EnabledOnOs(OS.MAC)");
+  }
+
+  @DisplayName("@DisabledOnOs 테스트")
+  @Test
+  @DisabledOnOs({OS.MAC, OS.LINUX})
+  void create_new_study6() {
+    System.out.println("@DisabledOnOs(OS.MAC)");
+  }
+
+  @DisplayName("@DisabledOnJre 테스트")
+  @Test
+  @DisabledOnJre(JRE.JAVA_17)
+  void create_new_study7() {
+    System.out.println("@DisabledOnJre(JRE.JAVA_17)");
+  }
+
+  @DisplayName("@EnabledOnJre 테스트")
+  @Test
+  @EnabledOnJre(JRE.JAVA_17)
+  void create_new_study8() {
+    System.out.println("@EnabledOnJre(JRE.JAVA_17)");
+  }
+
+  @DisplayName("@EnabledIfEnvironmentVariable 테스트")
+  @Test
+  @EnabledIfEnvironmentVariable(named = "TEST_ENV", matches = "LOCAL")
+  void create_new_study9() {
+    System.out.println("@EnabledIfEnvironmentVariable(named = \"TEST_ENV\", matches = \"LOCAL\")");
   }
 
   /**
