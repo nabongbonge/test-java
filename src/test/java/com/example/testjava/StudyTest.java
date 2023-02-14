@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.junit.jupiter.api.Assumptions.assumingThat;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS) // 없어도 테스트 순서와는 상관 없다. 다만, 상태를 공유하면서 순서에 따라 테스트가 가능하다.
+//@TestInstance(TestInstance.Lifecycle.PER_CLASS) // 없어도 테스트 순서와는 상관 없다. 다만, 상태를 공유하면서 순서에 따라 테스트가 가능하다.
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class StudyTest {
 
