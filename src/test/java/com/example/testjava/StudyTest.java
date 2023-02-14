@@ -24,11 +24,13 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.junit.jupiter.api.Assumptions.assumingThat;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS) // 없어도 테스트 순서와는 상관 없다. 다만, 상태를 공유하면서 순서에 따라 테스트가 가능하다.
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class StudyTest {
 
   int value = 1;
 
+  @Order(2)
   @DisplayName("assertAll 테스트")
   @Test
   @Tag("fast")
@@ -49,9 +51,9 @@ class StudyTest {
             () -> assertTrue(study.getLimit() > 0, "스터디 최대 참석 가능 인원은 0보다 커야 한다.")
     );
 
-
   }
 
+  @Order(1)
   @DisplayName("assertThrows 테스트")
   @Test
   @Tag("fast")
@@ -60,6 +62,7 @@ class StudyTest {
     assertEquals("limit은 0보다 커야 한다.", exception.getMessage());
   }
 
+  @Order(3)
   @DisplayName("assertTimeout 테스트")
   @Test
   void create_new_study2() {
@@ -76,6 +79,7 @@ class StudyTest {
    * 롤백이 아닌 커밋이 될 수 있기에 주의하여 사용하자.
    * 가능하다면 assertTimeout를 사용하자.
    */
+  @Order(4)
   @DisplayName("assertTimeoutPreemptively 테스트")
   @Test
   void create_new_study3() {
@@ -86,6 +90,7 @@ class StudyTest {
     });
   }
 
+  @Order(5)
   @DisplayName("assume 테스트")
   @Test
   void create_new_study4() {
