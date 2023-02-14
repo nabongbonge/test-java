@@ -22,7 +22,11 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.junit.jupiter.api.Assumptions.assumingThat;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class StudyTest {
+
+  int value = 1;
+
   @DisplayName("assertAll 테스트")
   @Test
   @Tag("fast")
@@ -130,7 +134,8 @@ class StudyTest {
   }
 
   @DisplayName("@RepeatedTest 테스트")
-  @RepeatedTest(value = 10, name = "{displayName}, {currentRepetition}/{totalRepetitions}") // @RepeatedTest 테스트, 1/10
+  @RepeatedTest(value = 10, name = "{displayName}, {currentRepetition}/{totalRepetitions}")
+    // @RepeatedTest 테스트, 1/10
   void create_new_study10(RepetitionInfo repetitionInfo) {
     System.out.println("test" + repetitionInfo.getCurrentRepetition() + "/"
             + repetitionInfo.getTotalRepetitions());
@@ -162,7 +167,8 @@ class StudyTest {
 
   @DisplayName("@ParameterizedTest, @CsvSource 테스트")
   @ParameterizedTest
-  @CsvSource({"10, '자바 스터디'", "20, 스프링"}) // ','를 딜리미터로 사용하는 어노테이션
+  @CsvSource({"10, '자바 스터디'", "20, 스프링"})
+    // ','를 딜리미터로 사용하는 어노테이션
   void create_new_study14(Integer limit, String name) {
     System.out.println(new Study(limit, name));
   }
@@ -180,6 +186,24 @@ class StudyTest {
   @CsvSource({"10, '자바 스터디'", "20, 스프링"})
   void create_new_study16(@AggregateWith(StudyAggregator.class) Study study) {
     System.out.println(study);
+  }
+
+  /**
+   * JUnit은 기본적으로 테스트 메소드 마다 클래스 인스턴스를 생성한다.
+   * 왜? 테스트 간의 의존성을 없애기 위함니다. 테스트 순서는 예측이 불가능하기 때문
+   */
+  @DisplayName("테스트마다 현재 객체의 해시 코드를 통해 다른 객체인지 확인1")
+  @Test
+  void create_new_study17() {
+    System.out.println(this); // com.example.testjava.StudyTest@3023df74
+    System.out.println(value++); // 1
+  }
+
+  @DisplayName("테스트마다 현재 객체의 해시 코드를 통해 다른 객체인지 확인2")
+  @Test
+  void create_new_study18() {
+    System.out.println(this); // com.example.testjava.StudyTest@313ac989
+    System.out.println(value++); // 1
   }
 
   /**
@@ -207,15 +231,20 @@ class StudyTest {
    * 반드시 접근제어자는 private 사용X
    * 반드시 static 선언
    * 반드시 리턴 타입은 void 사용
+   * <p>
+   * 단, @TestInstance(TestInstance.Lifecycle.PER_CLASS)로 선언한 클래스는
+   * 인스턴스를 클래스당 한번만 만들기때문에 'static' 제거 가능하다.
    */
   @BeforeAll
-  static void beforeAll() {
+//  static void beforeAll() {
+  void beforeAll() {
     System.out.println("before all");
   }
 
   @Disabled // 테스트 제외
   @AfterAll
-  static void afterAll() {
+//  static void afterAll() {
+  void afterAll() {
     System.out.println("after all");
   }
 
