@@ -2,7 +2,9 @@ package com.example.testjava;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.ParameterContext;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.aggregator.AggregateWith;
 import org.junit.jupiter.params.aggregator.ArgumentsAccessor;
@@ -23,12 +25,18 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.junit.jupiter.api.Assumptions.assumingThat;
 
+//  선언적 방법, 생성자로 매개변수를 넘겨줄 수 없음. 필드 정의 방법 사용(@RegisterExtension)
+//@ExtendWith(FindSlowTestExtension.class)
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 //@TestInstance(TestInstance.Lifecycle.PER_CLASS) // 없어도 테스트 순서와는 상관 없다. 다만, 상태를 공유하면서 순서에 따라 테스트가 가능하다.
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class StudyTest {
 
   int value = 1;
+
+  @RegisterExtension
+  static FindSlowTestExtension findSlowTestExtension = new FindSlowTestExtension(1000L);
+
 
   @Order(2)
   @DisplayName("assertAll 테스트")
