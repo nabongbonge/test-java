@@ -1,7 +1,18 @@
 package com.example.testjava;
 
+import org.assertj.core.util.Strings;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.*;
+import org.junit.jupiter.api.extension.ParameterContext;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.aggregator.AggregateWith;
+import org.junit.jupiter.params.aggregator.ArgumentsAccessor;
+import org.junit.jupiter.params.aggregator.ArgumentsAggregationException;
+import org.junit.jupiter.params.aggregator.ArgumentsAggregator;
+import org.junit.jupiter.params.converter.ArgumentConversionException;
+import org.junit.jupiter.params.converter.ConvertWith;
+import org.junit.jupiter.params.converter.SimpleArgumentConverter;
+import org.junit.jupiter.params.provider.*;
 
 import java.time.Duration;
 
@@ -14,6 +25,7 @@ import static org.junit.jupiter.api.Assumptions.assumingThat;
 class StudyTest {
   @DisplayName("assertAll 테스트")
   @Test
+  @Tag("fast")
   void create_new_study() {
     Study study = new Study(0);
     assertNotNull(study);
@@ -34,9 +46,9 @@ class StudyTest {
 
   }
 
-
   @DisplayName("assertThrows 테스트")
   @Test
+  @Tag("fast")
   void create_new_study1() {
     IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new Study(-1));
     assertEquals("limit은 0보다 커야 한다.", exception.getMessage());
@@ -115,6 +127,79 @@ class StudyTest {
   @EnabledIfEnvironmentVariable(named = "TEST_ENV", matches = "LOCAL")
   void create_new_study9() {
     System.out.println("@EnabledIfEnvironmentVariable(named = \"TEST_ENV\", matches = \"LOCAL\")");
+  }
+
+  @DisplayName("@RepeatedTest 테스트")
+  @RepeatedTest(value = 10, name = "{displayName}, {currentRepetition}/{totalRepetitions}") // @RepeatedTest 테스트, 1/10
+  void create_new_study10(RepetitionInfo repetitionInfo) {
+    System.out.println("test" + repetitionInfo.getCurrentRepetition() + "/"
+            + repetitionInfo.getTotalRepetitions());
+  }
+
+  @DisplayName("@ParameterizedTest, @ValueSource 테스트")
+  @ParameterizedTest(name = "{index} {displayName} str={0}") // 1 @ParameterizedTest 테스트 str=AAA
+  @ValueSource(strings = {"AAA", "BBB", "CCC"})
+  void create_new_study11(String str) {
+    System.out.println(str);
+  }
+
+  @DisplayName("@ParameterizedTest, 다양한 Source 테스트")
+  @ParameterizedTest
+  @ValueSource(strings = {"AAA", "BBB", "CCC"})
+  @EmptySource
+  @NullSource
+//  @NullAndEmptySource
+  void create_new_study12(String str) {
+    System.out.println(str);
+  }
+
+  @DisplayName("@ParameterizedTest, @ConvertWith 테스트")
+  @ParameterizedTest
+  @ValueSource(ints = {10, 20, 30})
+  void create_new_study13(@ConvertWith(StudyConverter.class) Study study) {
+    System.out.println(study.getLimit());
+  }
+
+  @DisplayName("@ParameterizedTest, @CsvSource 테스트")
+  @ParameterizedTest
+  @CsvSource({"10, '자바 스터디'", "20, 스프링"}) // ','를 딜리미터로 사용하는 어노테이션
+  void create_new_study14(Integer limit, String name) {
+    System.out.println(new Study(limit, name));
+  }
+
+  @DisplayName("@ParameterizedTest, @CsvSource, 기본 ArgumentsAccessor 테스트")
+  @ParameterizedTest
+  @CsvSource({"10, '자바 스터디'", "20, 스프링"})
+  void create_new_study15(ArgumentsAccessor aa) {
+    Study study = new Study(aa.getInteger(0), aa.getString(1));
+    System.out.println(study);
+  }
+
+  @DisplayName("@ParameterizedTest, @CsvSource, 커스텀 ArgumentsAccessor 테스트")
+  @ParameterizedTest
+  @CsvSource({"10, '자바 스터디'", "20, 스프링"})
+  void create_new_study16(@AggregateWith(StudyAggregator.class) Study study) {
+    System.out.println(study);
+  }
+
+  /**
+   * 반드시 static inner class 혹은 기본 public class 형태로 구성
+   */
+  static class StudyAggregator implements ArgumentsAggregator {
+
+    @Override
+    public Object aggregateArguments(ArgumentsAccessor accessor, ParameterContext context) throws ArgumentsAggregationException {
+      return new Study(accessor.getInteger(0), accessor.getString(1));
+    }
+  }
+
+
+  static class StudyConverter extends SimpleArgumentConverter {
+    @Override
+    protected Object convert(Object source, Class<?> targetType) throws ArgumentConversionException {
+      assertEquals(Study.class, targetType, "Can only to Study");
+      return new Study(Integer.parseInt(source.toString()));
+    }
   }
 
   /**
