@@ -223,7 +223,7 @@ class StudyServiceTest {
     assertEquals(StudyStatus.OPENED, study.getStatus());
     assertNotNull(study.getOpenedDateTime());
     then(memberService).should().notify(study);
-    
+
   }
 
 }
