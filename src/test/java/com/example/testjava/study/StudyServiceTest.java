@@ -6,7 +6,9 @@ import com.example.testjava.member.MemberService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
@@ -14,8 +16,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class StudyServiceTest {
@@ -136,6 +137,44 @@ class StudyServiceTest {
 
     studyService.createNewStudy(1L, study);
     assertEquals(member, study.getOwner());
+  }
+
+  @DisplayName("Verify - 어떤일이 일어났는지 확인")
+  @Test
+  void verified() {
+
+    StudyService studyService = new StudyService(memberService, studyRepository);
+    assertNotNull(studyService);
+
+    Member member = new Member();
+    member.setId(1L);
+    member.setEmail("wotjr7386@gmail.com");
+
+    Study study = new Study(10, "테스트");
+
+    when(memberService.findById(1L)).thenReturn(Optional.of(member));
+    when(studyRepository.save(study)).thenReturn(study);
+
+    studyService.createNewStudy(1L, study);
+
+    // memberService Mock객체에 딱 한번(imes(1))만 study 매개 변수를 가진 notify() 호출 되어야 한다.
+    verify(memberService, times(1)).notify(study);
+
+    // 특정 시점이후 해당 목에 어떠한 액션도 일어나면 안된다.
+//    verifyNoMoreInteractions(memberService);
+
+    verify(memberService, times(1)).notify(member);
+//    Mockito.verify(memberService, times(1)).notify(any()); 지금 해당 메소드는 오버리딩 상태인데 any() 넣으니 어떤 타입인지 추론을 못하므로 컴파일 오류
+    verify(memberService, never()).validate(any());
+
+    /**
+     * 호출 순서 검증
+     */
+    InOrder inOrder = inOrder(memberService);
+    inOrder.verify(memberService).notify(study);
+    inOrder.verify(memberService).notify(member);
+
+    // 이우에는 어떠한 액션도 일어나면 안된다.
   }
 
 }
