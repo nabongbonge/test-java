@@ -10,7 +10,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith(MockitoExtension.class)
 class StudyServiceTest {
@@ -40,7 +39,7 @@ class StudyServiceTest {
 
 //    MemberService memberService = mock(MemberService.class);
     // 인터페이스나 클래스 타입을 매개변수로 넘겨주면 Mock 객체를 생성
-//    StudyRepository studyRepository = mock(StudyRepository.class);
+//    StudyRepository studyRepository = Mockito.mock(StudyRepository.class);
 
     StudyService studyService = new StudyService(memberService, studyRepository);
     assertNotNull(studyService);
