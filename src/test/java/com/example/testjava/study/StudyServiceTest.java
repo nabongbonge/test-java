@@ -16,6 +16,8 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -174,7 +176,32 @@ class StudyServiceTest {
     inOrder.verify(memberService).notify(study);
     inOrder.verify(memberService).notify(member);
 
-    // 이우에는 어떠한 액션도 일어나면 안된다.
   }
+
+  @DisplayName("BDD 스타일 Mockito API")
+  @Test
+  void bddStyle() {
+    // Given
+    StudyService studyService = new StudyService(memberService, studyRepository);
+    assertNotNull(studyService);
+
+    Member member = new Member();
+    member.setId(1L);
+    member.setEmail("wotjr7386@gmail.com");
+
+    Study study = new Study(10, "테스트");
+
+    given(memberService.findById(1L)).willReturn(Optional.of(member));
+    given(studyRepository.save(study)).willReturn(study);
+
+    // When
+    studyService.createNewStudy(1L, study);
+
+    // Then
+    then(memberService).should(times(1)).notify(study);
+    then(memberService).shouldHaveNoInteractions();
+
+  }
+
 
 }
